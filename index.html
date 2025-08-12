@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rishija Misra — Personal Domain</title>
+  <meta name="description" content="The official personal domain page for Rishija Misra: biography, professional timeline, education timeline, and contact." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="brand">
+        <div class="avatar-wrap">
+          <img id="photo" alt="Profile photo of Rishija Misra" />
+        </div>
+        <div>
+          <h1 class="name">Rishija Misra</h1>
+          <p id="tagline" class="tagline">Software Engineering Leader · Data Platforms · AI/ML Enablement</p>
+          <div class="links">
+            <a id="linkedin" href="#" target="_blank" rel="noopener">LinkedIn</a>
+            <a id="email" href="#">Email</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" id="bio-card" aria-labelledby="bio-title">
+      <h2 id="bio-title">About</h2>
+      <p id="bio">Loading biography…</p>
+    </section>
+
+    <section class="grid">
+      <section class="card" id="career-card" aria-labelledby="career-title">
+        <h2 id="career-title">Professional Career</h2>
+        <ol id="career-timeline" class="timeline"></ol>
+      </section>
+      <section class="card" id="education-card" aria-labelledby="education-title">
+        <h2 id="education-title">Education</h2>
+        <ol id="education-timeline" class="timeline"></ol>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>© <span id="year"></span> Rishija Misra. This page is powered by simple JSON configs in <code>/data</code>.</small>
+    </div>
+  </footer>
+
+  <script>
+    const byId = (id) => document.getElementById(id);
+
+    async function loadJSON(path, fallback = null){
+      try {
+        const r = await fetch(path, {cache: "no-store"});
+        if(!r.ok) throw new Error("HTTP "+r.status);
+        return await r.json();
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function setPhoto(cfg){
+      const img = byId("photo");
+      if(cfg && cfg.src){
+        img.src = cfg.src;
+      } else {
+        img.src = "./assets/placeholder.jpg";
+      }
+      if(cfg && cfg.alt){ img.alt = cfg.alt; }
+    }
+
+    function setHeader(cfg){
+      if(!cfg) return;
+      if(cfg.tagline) byId("tagline").textContent = cfg.tagline;
+      if(cfg.linkedin){ 
+        const a = byId("linkedin"); 
+        a.href = cfg.linkedin; 
+      }
+      if(cfg.email){
+        const a = byId("email");
+        a.href = "mailto:"+cfg.email;
+      } else {
+        byId("email").style.display = "none";
+      }
+      if(cfg.bio) byId("bio").textContent = cfg.bio;
+    }
+
+    function renderTimeline(list, elId){
+      const el = byId(elId);
+      el.innerHTML = "";
+      (list || []).forEach(item => {
+        const li = document.createElement("li");
+        const header = document.createElement("div");
+        header.className = "tl-header";
+        const title = document.createElement("h3");
+        title.textContent = item.title || "";
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const org = item.org ? item.org : "";
+        const loc = item.location ? " · " + item.location : "";
+        const dates = (item.start || item.end) ? ` (${item.start || ""} — ${item.end || "Present"})` : "";
+        meta.textContent = [org + loc, dates].filter(Boolean).join(" ");
+        header.appendChild(title);
+        header.appendChild(meta);
+
+        const desc = document.createElement("p");
+        desc.textContent = item.description || "";
+
+        li.appendChild(header);
+        if(desc.textContent) li.appendChild(desc);
+        el.appendChild(li);
+      });
+    }
+
+    async function init(){
+      byId("year").textContent = new Date().getFullYear();
+
+      const [photo, header, career, education] = await Promise.all([
+        loadJSON("./data/photo.json", {}),
+        loadJSON("./data/header.json", {}),
+        loadJSON("./data/career.json", []),
+        loadJSON("./data/education.json", []),
+      ]);
+
+      setPhoto(photo);
+      setHeader(header);
+      renderTimeline(career, "career-timeline");
+      renderTimeline(education, "education-timeline");
+    }
+
+    init();
+  </script>
+</body>
+</html>
