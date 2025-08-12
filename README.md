@@ -1,7 +1,7 @@
 # Rishija Misra — Personal Domain (Static Site)
 
 This is a **static, single-page site** that loads all content from small JSON files under `/data`.
-No build tools required. Just host the folder on Netlify, GitHub Pages, Vercel, or any static host.
+No build tools required.
 
 ## Files
 - `index.html` – page markup and loader
@@ -23,5 +23,4 @@ No build tools required. Just host the folder on Netlify, GitHub Pages, Vercel, 
 - **Vercel**: import the repo and deploy as static.
 
 ## Notes
-- We did not scrape LinkedIn (they block bots). Copy relevant details manually into the JSON files.
 - The site does not track or store data; it just reads local JSON files at load time.
